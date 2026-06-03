@@ -1,20 +1,33 @@
-# Plans
+# KEEP Plans
 
-## P1 — Wire the real AgentDojo benchmark
+Created: 2026-06-04
 
-- [ ] Add `pyproject.toml` (src layout) so the package installs with `pip install -e .`
-- [ ] Pin AgentDojo as a dependency; record the exact version
-- [ ] Identify and document the specific banking-suite scenario(s) by ID in `THREAT.md`
-- [ ] Adapter: AgentDojo user task → KEEP deriver input (the trusted instruction)
-- [ ] Adapter: AgentDojo tool schema → KEEP capability scope (decide which args are scoped)
-- [ ] Route every AgentDojo tool call through `TrustedBase.authorize` before execution
-- [ ] Reproduce one documented banking injection end-to-end against the real environment
-- [ ] Test: the real-scenario injection is blocked by the base (scripted agent, real env)
-- [ ] Handle multi-step tasks: capability lifecycle across a full AgentDojo episode
+## Setup
+
+```bash
+uv sync --dev               # install dev dependencies (pytest)
+uv run pytest -q            # run tests
+```
+
+---
+
+## Phase 1: Wire the real AgentDojo benchmark
+
+| Task | Content | DoD | Depends | Status |
+|------|---------|-----|---------|--------|
+| 1.1  | Add `pyproject.toml` (src layout) for `pip install -e .` | `uv sync --dev` completes without error | - | cc:TODO |
+| 1.2  | Pin AgentDojo as dependency; record exact version | Version pinned in pyproject.toml | 1.1 | cc:TODO |
+| 1.3  | Identify and document banking-suite scenario(s) by ID in `THREAT.md` | Scenario IDs documented and linked | 1.2 | cc:TODO |
+| 1.4  | Adapter: AgentDojo user task → KEEP deriver input | Adapter converts user task to trusted instruction | 1.3 | cc:TODO |
+| 1.5  | Adapter: AgentDojo tool schema → KEEP capability scope | Adapter generates capabilities for all AgentDojo tools | 1.4 | cc:TODO |
+| 1.6  | Route every AgentDojo tool call through `TrustedBase.authorize` | All calls intercepted; audit log recorded | 1.5 | cc:TODO |
+| 1.7  | Reproduce one documented banking injection end-to-end | Injection scenario runs against real environment | 1.6 | cc:TODO |
+| 1.8  | Test: real-scenario injection blocked by base | `uv run pytest` passes; injection blocked; logs show decision | 1.7 | cc:TODO |
+| 1.9  | Handle multi-step tasks: capability lifecycle across episode | Capabilities expire/renew correctly across steps | 1.8 | cc:TODO |
 
 ## Backlog
 
-- P2 — Real LLM proposer (the untrusted component)
-- P3 — Measure and report honestly
+- Phase 2: Real LLM proposer (the untrusted component)
+- Phase 3: Measure and report honestly
 - Hardening (Sketch 4 proper)
 - Engineering / hygiene
