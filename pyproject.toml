@@ -1,11 +1,21 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "keep"
 version = "0.0.1"
 description = "Implementation probe for prompt-injection attack defense"
+readme = "README.md"
 requires-python = ">=3.9"
+license = {text = "All rights reserved"}
+authors = [{name = "Kresna Sucandra", email = "kresnasucandra@gmail.com"}]
 dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.uv]
