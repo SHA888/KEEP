@@ -1,0 +1,9 @@
+{
+  "hooks": [
+    {
+      "on": "tool-use",
+      "type": "bash",
+      "command": "bash ./hooks/pre-tool.sh"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+[project]
+name = "KEEP"
+type = "python"
+description = "Implementation probe for prompt-injection attack defense"
+
+[harness]
+version = "4.10.0"

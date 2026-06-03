@@ -74,7 +74,8 @@ Files:
 ## How to run
 
 ```bash
-python -m pytest -q          # pure stdlib; no install needed (conftest puts src/ on the path)
+uv sync --dev               # install dev dependencies (pytest)
+uv run pytest -q            # run tests
 ```
 
 ## Roadmap / status
@@ -90,9 +91,16 @@ Update this section and `README.md` when a phase lands.
 
 ## Conventions
 
-- **No `Co-Authored-By:` trailers in commit messages** (matches the author's standing preference
-  across these repos). Commit attribution stays with the human author.
-- **English only** in tracked files.
+- **No `Co-Authored-By:` trailers in commit messages.** This applies to all assistant-generated commits, 
+  including those produced by Claude Code or any other AI tool. Commit attribution stays with the human 
+  author. Boilerplate trailers add noise to the history without conveying meaningful authorship and have 
+  been retroactively stripped from past commits.
+- **English-only requirement:**
+  - All Plans.md content must be in English (headers, table columns, task descriptions, status markers).
+  - No Japanese characters in Plans.md status markers (use `cc:done` instead of `cc:完了`, `cc:wip` instead 
+    of `cc:WIP`, etc).
+  - All harness output and documentation must be in English.
+  - This applies strictly to tracked files; commit to this constraint when editing Plans.md.
 - **Commit/push only when asked.** If on the default branch (`main`), that is the working branch
   for this probe; small probe commits directly on `main` are fine when the user requests them.
 - **License:** all rights reserved (placeholder, `LICENSE`). The repo is public on GitHub but not
