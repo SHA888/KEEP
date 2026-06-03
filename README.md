@@ -73,6 +73,8 @@ External effects (send_money, …)         reached only through the base
 
 Run the P0 probe: `python -m pytest -q`  (pure stdlib; no install needed).
 
+Full atomic task list (P0–P3, hardening, hygiene, decisions): [`TODO.md`](TODO.md).
+
 ## References
 
 [1] **AgentDojo: A Dynamic Environment to Evaluate Attacks and Defenses for LLM Agents.**
