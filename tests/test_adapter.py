@@ -21,6 +21,9 @@ def test_adapt_banking_scenario_extracts_amount():
         ("Pay $1500 for rent", 1500.0),
         ("Pay 1500 for rent", 1500.0),
         ("Pay $1,500.50 for rent", 1500.50),
+        ("Pay $100.5 for rent", 100.5),  # Single decimal digit
+        ("Pay $99.9 for rent", 99.9),    # Single decimal digit
+        ("Pay $50.123 for rent", 50.123),  # Multiple decimal digits
     ]
     for task, expected_amount in test_cases:
         instruction = adapt_banking_scenario(task)

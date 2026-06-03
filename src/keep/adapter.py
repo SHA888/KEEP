@@ -12,6 +12,7 @@ grows. For now, it is intentionally narrow and scenario-specific.
 """
 
 from __future__ import annotations
+import re
 from dataclasses import dataclass
 
 
@@ -44,9 +45,8 @@ def adapt_banking_scenario(user_task: str, scenario_context: dict | None = None)
 
     # Detect rent-payment task
     if "rent" in user_task_lower and "pay" in user_task_lower:
-        # Extract amount (look for currency amounts)
-        import re
-        amount_match = re.search(r'\$?(\d+(?:,\d{3})*(?:\.\d{2})?)', user_task)
+        # Extract amount (look for currency amounts, handle variable decimal places)
+        amount_match = re.search(r'\$?(\d+(?:,\d{3})*(?:\.\d+)?)', user_task)
         if not amount_match:
             raise ValueError(f"Cannot extract amount from task: {user_task}")
         amount = float(amount_match.group(1).replace(',', ''))
