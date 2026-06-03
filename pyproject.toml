@@ -7,10 +7,12 @@ name = "keep"
 version = "0.0.1"
 description = "Implementation probe for prompt-injection attack defense"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "All rights reserved"}
 authors = [{name = "Kresna Sucandra", email = "kresnasucandra@gmail.com"}]
-dependencies = []
+dependencies = [
+    "agentdojo==0.1.35",
+]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]
