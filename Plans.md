@@ -17,7 +17,7 @@ uv run pytest -q            # run tests
 |------|---------|-----|---------|--------|
 | 1.1  | Add `pyproject.toml` (src layout) for `pip install -e .` | `uv sync --dev` completes without error | - | cc:done [e44dc80] |
 | 1.2  | Pin AgentDojo as dependency; record exact version | Version pinned in pyproject.toml | 1.1 | cc:done [8e8f09f] |
-| 1.3  | Identify and document banking-suite scenario(s) by ID in `THREAT.md` | Scenario IDs documented and linked | 1.2 | cc:todo |
+| 1.3  | Identify and document banking-suite scenario(s) by ID in `THREAT.md` | Scenario IDs documented and linked | 1.2 | cc:done [ab68fcb] |
 | 1.4  | Adapter: AgentDojo user task → KEEP deriver input | Adapter converts user task to trusted instruction | 1.3 | cc:todo |
 | 1.5  | Adapter: AgentDojo tool schema → KEEP capability scope | Adapter generates capabilities for all AgentDojo tools | 1.4 | cc:todo |
 | 1.6  | Route every AgentDojo tool call through `TrustedBase.authorize` | All calls intercepted; audit log recorded | 1.5 | cc:todo |
