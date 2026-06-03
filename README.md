@@ -22,6 +22,11 @@ separate license, separate name. UNTRUST is the thinking; KEEP probes one of its
 (Sketch 4 — capability tokens) under the §10 trusted-base synthesis. Nothing here is committed
 back into the UNTRUST repo, and "UNTRUST" is not used as a label for this work.
 
+> **Parent:** UNTRUST — [github.com/SHA888/UNTRUST](https://github.com/SHA888/UNTRUST). KEEP
+> implements the demonstration UNTRUST §15.6 names; the relevant sketch is §7 (capability tokens)
+> and the synthesis is §10. The companion *enforceability discipline* in that repo is the lens
+> KEEP uses to state its own guarantee honestly (the four-field claim below).
+
 ## The thesis, stated as a four-field claim
 
 Applying UNTRUST's companion *enforceability discipline* to KEEP itself — honestly, including
