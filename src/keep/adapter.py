@@ -17,7 +17,7 @@ by validating tool calls against the known tool schema.
 from __future__ import annotations
 import re
 from dataclasses import dataclass
-from .tool_schema import validate_tool_call, scope_for_tool, get_tool_schema
+from .tool_schema import validate_tool_call, scope_for_tool, get_tool_schema, BANKING_TOOLS
 
 
 @dataclass
@@ -90,7 +90,8 @@ def trusted_instruction_to_deriver_input(instruction: TrustedInstruction) -> dic
 def validate_agentdojo_tool_call(tool: str, args: dict) -> tuple[bool, str | None]:
     """Validate an AgentDojo tool call against the known tool schema.
 
-    This bridges untrusted agent proposals to trusted schema validation.
+    This is the public adapter API for tool-call validation (UNTRUST §12 seam).
+    It bridges untrusted agent proposals to trusted schema validation.
     Any tool call that doesn't match the schema is rejected outright.
 
     Args:
@@ -106,7 +107,8 @@ def validate_agentdojo_tool_call(tool: str, args: dict) -> tuple[bool, str | Non
 def capability_scope_for_tool_call(tool: str, args: dict) -> tuple[tuple[str, object], ...]:
     """Generate capability scope constraints for a tool call.
 
-    This ensures that when a capability is minted for this tool call,
+    This is the public adapter API for scope generation (UNTRUST §12 seam).
+    It ensures that when a capability is minted for this tool call,
     it includes all required parameters to prevent injection attacks.
     A call with different parameter values cannot match the minted scope.
 
@@ -129,8 +131,4 @@ def list_available_tools() -> list[str]:
     Returns:
         List of tool names
     """
-    tools = []
-    from .tool_schema import BANKING_TOOLS
-    for schema in BANKING_TOOLS:
-        tools.append(schema.name)
-    return tools
+    return [schema.name for schema in BANKING_TOOLS]

@@ -30,12 +30,16 @@ def derive(user_task: dict) -> list[Capability]:
     """
     caps: list[Capability] = []
     if user_task.get("action") == "pay_rent":
+        # Validate that user_task has required fields
+        try:
+            to = user_task["to"]
+            amount = user_task["amount"]
+        except KeyError as e:
+            raise ValueError(f"Malformed user_task: missing required field {e}")
+
         # Map action to tool and build args for scope generation
         tool = "send_money"
-        args = {
-            "to": user_task["to"],
-            "amount": user_task["amount"],
-        }
+        args = {"to": to, "amount": amount}
 
         # Validate that this tool exists and args are in schema
         schema = get_tool_schema(tool)
@@ -43,7 +47,7 @@ def derive(user_task: dict) -> list[Capability]:
             is_valid, _ = schema.validate_args(args)
             if is_valid:
                 # Generate scope constraints from tool schema
-                scope = scope_for_tool(tool, args)
+                scope = scope_for_tool(tool, args, schema)
                 caps.append(
                     Capability(
                         tool=tool,

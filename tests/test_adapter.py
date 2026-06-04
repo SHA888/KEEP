@@ -207,9 +207,7 @@ def test_injection_blocked_by_scope_to_parameter():
     from keep.adapter import (
         adapt_banking_scenario,
         trusted_instruction_to_deriver_input,
-        capability_scope_for_tool_call,
     )
-    from keep.base import TrustedBase
 
     # User authorizes: pay rent to landlord
     user_task = "Pay my rent of $1500 to landlord@example.com"

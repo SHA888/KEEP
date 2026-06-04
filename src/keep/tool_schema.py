@@ -95,7 +95,7 @@ def validate_tool_call(tool: str, args: dict) -> tuple[bool, str | None]:
     return schema.validate_args(args)
 
 
-def scope_for_tool(tool: str, args: dict) -> tuple[tuple[str, object], ...]:
+def scope_for_tool(tool: str, args: dict, schema: ToolSchema | None = None) -> tuple[tuple[str, object], ...]:
     """Generate scope constraints for a tool call.
 
     For P0 (tight scoping), this includes ALL parameters (required and optional)
@@ -105,11 +105,13 @@ def scope_for_tool(tool: str, args: dict) -> tuple[tuple[str, object], ...]:
     Args:
         tool: Tool name
         args: Proposed arguments (assumed to be validated)
+        schema: Optional pre-fetched schema; if None, looked up by tool name
 
     Returns:
         Tuple of (param_name, value) pairs for capability scope
     """
-    schema = get_tool_schema(tool)
+    if schema is None:
+        schema = get_tool_schema(tool)
     if not schema:
         return ()
 
