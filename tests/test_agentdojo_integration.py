@@ -10,6 +10,7 @@ The test verifies that:
 3. Unauthorized calls are blocked (effect never called)
 4. All decisions are logged in the audit trail
 """
+
 from __future__ import annotations
 
 import pytest
@@ -125,7 +126,7 @@ def test_injection_blocked_even_with_legitimate_call(agentdojo_effect):
     agent = UntrustedAgent(
         [
             ("send_money", {"to": "landlord@example.com", "amount": 1500}),  # OK
-            ("send_money", {"to": "attacker@evil.com", "amount": 10000}),    # INJECTED
+            ("send_money", {"to": "attacker@evil.com", "amount": 10000}),  # INJECTED
         ]
     )
 

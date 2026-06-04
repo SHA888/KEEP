@@ -6,6 +6,7 @@ it could forge — it only *proposes* (tool, args) calls that the base checks ag
 its registry. Cryptographic signing (real Sketch 4) is a later step; the structural
 guarantee in a single-process probe does not depend on it.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

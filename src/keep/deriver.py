@@ -9,6 +9,7 @@ edge, deliberately not papered over here.
 The deriver uses tool_schema to ensure that scope constraints are tight and match
 the available tools' parameter definitions.
 """
+
 from __future__ import annotations
 
 import itertools

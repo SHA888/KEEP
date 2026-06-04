@@ -4,6 +4,7 @@ This is the whole trusted computing base of the probe: a capability registry, an
 authorization check, and an audit log. Everything else (the model, the deriver's
 input) is untrusted or a named seam (see THREAT.md).
 """
+
 from __future__ import annotations
 
 from typing import Callable

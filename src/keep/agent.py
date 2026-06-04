@@ -5,6 +5,7 @@ exactly the attacker's action — because the whole point is that the guarantee 
 not depend on the model behaving. In P2 this is replaced by a real LLM; the base
 above it does not change.
 """
+
 from __future__ import annotations
 
 

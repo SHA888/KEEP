@@ -10,6 +10,7 @@ before execution. The run() function ensures:
 3. Authorization and blocking decisions are logged in the audit trail
 4. Only authorized calls execute via the effect function
 """
+
 from __future__ import annotations
 
 from typing import Callable

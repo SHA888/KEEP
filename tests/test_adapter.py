@@ -22,7 +22,7 @@ def test_adapt_banking_scenario_extracts_amount():
         ("Pay 1500 for rent", 1500.0),
         ("Pay $1,500.50 for rent", 1500.50),
         ("Pay $100.5 for rent", 100.5),  # Single decimal digit
-        ("Pay $99.9 for rent", 99.9),    # Single decimal digit
+        ("Pay $99.9 for rent", 99.9),  # Single decimal digit
         ("Pay $50.123 for rent", 50.123),  # Multiple decimal digits
     ]
     for task, expected_amount in test_cases:
@@ -84,8 +84,7 @@ def test_validate_tool_call_send_money_valid():
     from keep.adapter import validate_agentdojo_tool_call
 
     is_valid, error = validate_agentdojo_tool_call(
-        "send_money",
-        {"to": "alice@example.com", "amount": 100.0}
+        "send_money", {"to": "alice@example.com", "amount": 100.0}
     )
     assert is_valid
     assert error is None
@@ -97,7 +96,7 @@ def test_validate_tool_call_send_money_missing_required():
 
     is_valid, error = validate_agentdojo_tool_call(
         "send_money",
-        {"amount": 100.0}  # missing 'to'
+        {"amount": 100.0},  # missing 'to'
     )
     assert not is_valid
     assert "Missing required parameters" in error
@@ -108,8 +107,7 @@ def test_validate_tool_call_unknown_parameter():
     from keep.adapter import validate_agentdojo_tool_call
 
     is_valid, error = validate_agentdojo_tool_call(
-        "send_money",
-        {"to": "alice@example.com", "amount": 100.0, "memo": "rent"}
+        "send_money", {"to": "alice@example.com", "amount": 100.0, "memo": "rent"}
     )
     assert not is_valid
     assert "Unknown parameters" in error
@@ -119,10 +117,7 @@ def test_validate_tool_call_unknown_tool():
     """Tool call validation rejects unknown tool names."""
     from keep.adapter import validate_agentdojo_tool_call
 
-    is_valid, error = validate_agentdojo_tool_call(
-        "unknown_tool",
-        {}
-    )
+    is_valid, error = validate_agentdojo_tool_call("unknown_tool", {})
     assert not is_valid
     assert "Unknown tool" in error
 
@@ -132,17 +127,11 @@ def test_validate_tool_call_list_transactions_valid():
     from keep.adapter import validate_agentdojo_tool_call
 
     # With limit
-    is_valid, error = validate_agentdojo_tool_call(
-        "list_transactions",
-        {"limit": 10}
-    )
+    is_valid, error = validate_agentdojo_tool_call("list_transactions", {"limit": 10})
     assert is_valid
 
     # Without limit (optional)
-    is_valid, error = validate_agentdojo_tool_call(
-        "list_transactions",
-        {}
-    )
+    is_valid, error = validate_agentdojo_tool_call("list_transactions", {})
     assert is_valid
 
 
@@ -150,10 +139,7 @@ def test_validate_tool_call_get_balance_valid():
     """Tool call validation accepts get_balance with no parameters."""
     from keep.adapter import validate_agentdojo_tool_call
 
-    is_valid, error = validate_agentdojo_tool_call(
-        "get_balance",
-        {}
-    )
+    is_valid, error = validate_agentdojo_tool_call("get_balance", {})
     assert is_valid
 
 
@@ -162,8 +148,7 @@ def test_capability_scope_for_tool_send_money():
     from keep.adapter import capability_scope_for_tool_call
 
     scope = capability_scope_for_tool_call(
-        "send_money",
-        {"to": "landlord@example.com", "amount": 1500.0}
+        "send_money", {"to": "landlord@example.com", "amount": 1500.0}
     )
 
     # Scope should constrain both 'to' and 'amount'
@@ -177,17 +162,11 @@ def test_capability_scope_for_tool_list_transactions():
     from keep.adapter import capability_scope_for_tool_call
 
     # With limit
-    scope = capability_scope_for_tool_call(
-        "list_transactions",
-        {"limit": 10}
-    )
+    scope = capability_scope_for_tool_call("list_transactions", {"limit": 10})
     assert ("limit", 10) in scope
 
     # Without limit
-    scope = capability_scope_for_tool_call(
-        "list_transactions",
-        {}
-    )
+    scope = capability_scope_for_tool_call("list_transactions", {})
     assert len(scope) == 0  # No required parameters
 
 
@@ -195,10 +174,7 @@ def test_capability_scope_for_tool_get_balance():
     """Scope generation for get_balance is empty (no parameters)."""
     from keep.adapter import capability_scope_for_tool_call
 
-    scope = capability_scope_for_tool_call(
-        "get_balance",
-        {}
-    )
+    scope = capability_scope_for_tool_call("get_balance", {})
     assert len(scope) == 0
 
 

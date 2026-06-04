@@ -10,6 +10,7 @@ trusted base, ensuring that:
 For P0, this is the banking suite only. As the deriver widens (P1+), tool definitions
 grow; the schema remains the source of truth for valid parameter names.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -18,6 +19,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class ToolParameter:
     """Definition of one tool parameter."""
+
     name: str
     required: bool = True
 
@@ -25,6 +27,7 @@ class ToolParameter:
 @dataclass(frozen=True)
 class ToolSchema:
     """Definition of one tool: its name and required parameters."""
+
     name: str
     parameters: tuple[ToolParameter, ...]
 
@@ -62,9 +65,7 @@ BANKING_TOOLS = (
     ),
     ToolSchema(
         name="list_transactions",
-        parameters=(
-            ToolParameter(name="limit", required=False),
-        ),
+        parameters=(ToolParameter(name="limit", required=False),),
     ),
     ToolSchema(
         name="get_balance",
@@ -95,7 +96,9 @@ def validate_tool_call(tool: str, args: dict) -> tuple[bool, str | None]:
     return schema.validate_args(args)
 
 
-def scope_for_tool(tool: str, args: dict, schema: ToolSchema | None = None) -> tuple[tuple[str, object], ...]:
+def scope_for_tool(
+    tool: str, args: dict, schema: ToolSchema | None = None
+) -> tuple[tuple[str, object], ...]:
     """Generate scope constraints for a tool call.
 
     For P0 (tight scoping), this includes ALL parameters (required and optional)

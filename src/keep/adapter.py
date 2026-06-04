@@ -17,18 +17,21 @@ by validating tool calls against the known tool schema.
 from __future__ import annotations
 import re
 from dataclasses import dataclass
-from .tool_schema import validate_tool_call, scope_for_tool, get_tool_schema, BANKING_TOOLS
+from .tool_schema import validate_tool_call, scope_for_tool, BANKING_TOOLS
 
 
 @dataclass
 class TrustedInstruction:
     """Structured trusted instruction for the deriver."""
+
     action: str
     to: str
     amount: float
 
 
-def adapt_banking_scenario(user_task: str, scenario_context: dict | None = None) -> TrustedInstruction:
+def adapt_banking_scenario(
+    user_task: str, scenario_context: dict | None = None
+) -> TrustedInstruction:
     """Adapt AgentDojo banking-scenario user task to KEEP deriver input format.
 
     Args:
@@ -50,25 +53,23 @@ def adapt_banking_scenario(user_task: str, scenario_context: dict | None = None)
     # Detect rent-payment task
     if "rent" in user_task_lower and "pay" in user_task_lower:
         # Extract amount (look for currency amounts, handle variable decimal places)
-        amount_match = re.search(r'\$?(\d+(?:,\d{3})*(?:\.\d+)?)', user_task)
+        amount_match = re.search(r"\$?(\d+(?:,\d{3})*(?:\.\d+)?)", user_task)
         if not amount_match:
             raise ValueError(f"Cannot extract amount from task: {user_task}")
-        amount = float(amount_match.group(1).replace(',', ''))
+        amount = float(amount_match.group(1).replace(",", ""))
 
         # Extract recipient (look for email or "landlord")
         # For P0, hardcode the landlord recipient from THREAT.md scenario
         recipient = "landlord@example.com"
-        email_match = re.search(r'[\w\.-]+@[\w\.-]+\.\w+', user_task)
+        email_match = re.search(r"[\w\.-]+@[\w\.-]+\.\w+", user_task)
         if email_match:
             recipient = email_match.group(0)
 
-        return TrustedInstruction(
-            action="pay_rent",
-            to=recipient,
-            amount=amount
-        )
+        return TrustedInstruction(action="pay_rent", to=recipient, amount=amount)
 
-    raise ValueError(f"Unrecognized task format (P0 supports rent-payment only): {user_task}")
+    raise ValueError(
+        f"Unrecognized task format (P0 supports rent-payment only): {user_task}"
+    )
 
 
 def trusted_instruction_to_deriver_input(instruction: TrustedInstruction) -> dict:
@@ -104,7 +105,9 @@ def validate_agentdojo_tool_call(tool: str, args: dict) -> tuple[bool, str | Non
     return validate_tool_call(tool, args)
 
 
-def capability_scope_for_tool_call(tool: str, args: dict) -> tuple[tuple[str, object], ...]:
+def capability_scope_for_tool_call(
+    tool: str, args: dict
+) -> tuple[tuple[str, object], ...]:
     """Generate capability scope constraints for a tool call.
 
     This is the public adapter API for scope generation (UNTRUST §12 seam).
