@@ -2,6 +2,13 @@
 
 The control flow is the architecture (UNTRUST §10): capabilities come from the trusted
 task; proposals come from the untrusted agent; only authorized proposals reach effects.
+
+This module implements task 1.6: all tool calls are routed through TrustedBase.authorize()
+before execution. The run() function ensures:
+1. Capabilities are minted ONLY from the trusted user task (via deriver)
+2. Every proposed tool call is checked against minted capabilities
+3. Authorization and blocking decisions are logged in the audit trail
+4. Only authorized calls execute via the effect function
 """
 from __future__ import annotations
 
