@@ -30,5 +30,10 @@ def run(user_task: dict, agent: UntrustedAgent, effect: Callable[[str, dict], ob
         try:
             results.append(("ok", base.execute(tool, args, effect)))
         except Unauthorized as exc:
+            # Authorization failed; call was blocked
             results.append(("blocked", str(exc)))
+        except Exception as exc:
+            # Effect execution failed (not an authorization issue)
+            # Record as an error but don't stop processing other proposals
+            results.append(("error", f"{type(exc).__name__}: {exc}"))
     return base, results

@@ -1,10 +1,13 @@
-"""Integration test: KEEP authorization with AgentDojo banking scenario.
+"""Test KEEP authorization routing with mocked AgentDojo tools (P0 scenario).
 
-This test wires the KEEP probe with a real AgentDojo banking-suite environment.
-The goal is to verify that:
-1. AgentDojo tool calls are routed through TrustedBase.authorize()
-2. Authorized calls execute successfully
-3. Unauthorized calls (injection) are blocked
+This test verifies the authorization routing in runner.py with mocked AgentDojo-style
+tool execution. For P0, tool calls are mocked to simulate AgentDojo behavior.
+In P1, this will be replaced with real AgentDojo environment integration.
+
+The test verifies that:
+1. Tool calls are routed through TrustedBase.authorize()
+2. Authorized calls execute (effect is called)
+3. Unauthorized calls are blocked (effect never called)
 4. All decisions are logged in the audit trail
 """
 from __future__ import annotations
@@ -21,48 +24,53 @@ USER_TASK = {"action": "pay_rent", "to": "landlord@example.com", "amount": 1500}
 
 @pytest.fixture
 def agentdojo_effect():
-    """Create an effect function that executes AgentDojo tools.
+    """Create an effect function that executes mocked AgentDojo tools (P0).
 
-    For P0, this is a simplified version that mocks AgentDojo behavior.
+    For P0, this is a mocked version simulating AgentDojo behavior.
+    Each fixture invocation gets its own executed_calls list (no state pollution).
     In P1, this would load a real AgentDojo environment.
 
     Each tool execution is called with already-authorized (tool, args) pairs
     from TrustedBase.execute().
     """
-    executed_calls = []
 
-    def effect(tool: str, args: dict) -> object:
-        """Execute tool and record the call for verification."""
-        executed_calls.append((tool, args))
+    class MockEffect:
+        """Effect function with isolated execution tracking per test."""
 
-        # Simulate tool execution (mocked for P0)
-        if tool == "send_money":
-            return {
-                "status": "success",
-                "to": args.get("to"),
-                "amount": args.get("amount"),
-                "message": f"Sent {args.get('amount')} to {args.get('to')}",
-            }
-        elif tool == "list_transactions":
-            return {
-                "status": "success",
-                "transactions": [
-                    {
-                        "id": 1,
-                        "from": "employer@company.com",
-                        "amount": 5000,
-                        "subject": "Monthly salary",
-                    },
-                ],
-                "limit": args.get("limit", 10),
-            }
-        elif tool == "get_balance":
-            return {"status": "success", "balance": 3500.0}
-        else:
-            raise ValueError(f"Unknown tool: {tool}")
+        def __init__(self):
+            self.executed_calls = []
 
-    effect.executed_calls = executed_calls
-    return effect
+        def __call__(self, tool: str, args: dict) -> object:
+            """Execute tool and record the call for verification."""
+            self.executed_calls.append((tool, args))
+
+            # Simulate tool execution (mocked for P0)
+            if tool == "send_money":
+                return {
+                    "status": "success",
+                    "to": args.get("to"),
+                    "amount": args.get("amount"),
+                    "message": f"Sent {args.get('amount')} to {args.get('to')}",
+                }
+            elif tool == "list_transactions":
+                return {
+                    "status": "success",
+                    "transactions": [
+                        {
+                            "id": 1,
+                            "from": "employer@company.com",
+                            "amount": 5000,
+                            "subject": "Monthly salary",
+                        },
+                    ],
+                    "limit": args.get("limit", 10),
+                }
+            elif tool == "get_balance":
+                return {"status": "success", "balance": 3500.0}
+            else:
+                raise ValueError(f"Unknown tool: {tool}")
+
+    return MockEffect()
 
 
 def test_authorized_tool_call_executes(agentdojo_effect):
