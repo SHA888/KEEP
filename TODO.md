@@ -17,15 +17,15 @@ claim (see `CLAUDE.md`); never claim a measured result that has not been measure
 
 ## P1 — Wire the real AgentDojo benchmark
 
-- [ ] Add `pyproject.toml` (src layout) so the package installs with `pip install -e .`
-- [ ] Pin AgentDojo as a dependency; record the exact version
-- [ ] Identify and document the specific banking-suite scenario(s) by ID in `THREAT.md`
-- [ ] Adapter: AgentDojo user task → KEEP deriver input (the trusted instruction)
-- [ ] Adapter: AgentDojo tool schema → KEEP capability scope (decide which args are scoped)
-- [ ] Route every AgentDojo tool call through `TrustedBase.authorize` before execution
-- [ ] Reproduce one documented banking injection end-to-end against the real environment
-- [ ] Test: the real-scenario injection is blocked by the base (scripted agent, real env)
-- [ ] Handle multi-step tasks: capability lifecycle across a full AgentDojo episode
+- [x] Add `pyproject.toml` (src layout) so the package installs with `pip install -e .`
+- [x] Pin AgentDojo as a dependency; record the exact version
+- [x] Identify and document the specific banking-suite scenario(s) by ID in `THREAT.md`
+- [x] Adapter: AgentDojo user task → KEEP deriver input (the trusted instruction)
+- [x] Adapter: AgentDojo tool schema → KEEP capability scope (decide which args are scoped)
+- [x] Route every AgentDojo tool call through `TrustedBase.authorize` before execution
+- [x] Reproduce one documented banking injection end-to-end against the real environment
+- [x] Test: the real-scenario injection is blocked by the base (scripted agent, real env)
+- [x] Handle multi-step tasks: capability lifecycle across a full AgentDojo episode
 
 ## P2 — Real LLM proposer (the untrusted component)
 
