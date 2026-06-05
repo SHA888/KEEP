@@ -37,6 +37,10 @@ class TrustedBase:
         If a matching capability is found AND has renewal > 0, decrement its renewal
         (consume it for one use) and return True. This enforces the capability lifecycle
         for multi-step scenarios: capabilities are consumed as they are used.
+
+        Audit tuple format (consistent across success and failure):
+        - Success: ("authorize", tool, args, True, nonce, renewal_after)
+        - Failure: ("authorize", tool, args, False, None, None)
         """
         for entry in self._caps:
             cap = entry["cap"]
@@ -48,7 +52,7 @@ class TrustedBase:
                 )
                 return True
         # No matching capability with renewal remaining
-        self.audit.append(("authorize", tool, args, False))
+        self.audit.append(("authorize", tool, args, False, None, None))
         return False
 
     def execute(self, tool: str, args: dict, effect: Callable[[str, dict], object]):
