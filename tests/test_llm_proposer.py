@@ -82,6 +82,23 @@ class TestLLMProposerToolSchema:
             assert "limit" in list_tx["input_schema"]["properties"]
             assert "limit" not in list_tx["input_schema"]["required"]
 
+    def test_parameter_types_are_semantically_correct(self):
+        """Verify that parameter types match semantic meaning (amount=number, limit=integer)."""
+        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
+            proposer = LLMProposer()
+            tools = proposer._marshal_tools()
+
+            # send_money should have 'to' as string and 'amount' as number
+            send_money = next(t for t in tools if t["name"] == "send_money")
+            assert send_money["input_schema"]["properties"]["to"]["type"] == "string"
+            assert (
+                send_money["input_schema"]["properties"]["amount"]["type"] == "number"
+            )
+
+            # list_transactions should have 'limit' as integer
+            list_tx = next(t for t in tools if t["name"] == "list_transactions")
+            assert list_tx["input_schema"]["properties"]["limit"]["type"] == "integer"
+
 
 class TestLLMProposerAPICall:
     """Test Claude API call with tool schema."""

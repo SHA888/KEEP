@@ -44,7 +44,7 @@ class LLMProposer:
                 "API key must come from trusted channel (env var only)."
             )
         self._client = Anthropic(api_key=api_key)
-        self._model = "claude-3-5-sonnet-20241022"
+        self._model = "claude-3-5-sonnet-20240620"
 
     def propose(
         self, observations: dict[str, Any], task_description: str = ""
@@ -81,12 +81,19 @@ class LLMProposer:
         try:
             response = self._client.messages.create(
                 model=self._model,
-                max_tokens=1024,
+                max_tokens=2048,
                 tools=tools,
                 messages=[{"role": "user", "content": user_message}],
             )
+        except ValueError:
+            # Re-raise ValueError (from this module) as-is
+            raise
+        except (KeyError, AttributeError, TypeError) as e:
+            # Response parsing errors
+            raise ValueError(f"Invalid API response format: {e}")
         except Exception as e:
-            raise ValueError(f"Claude API call failed: {e}")
+            # Generic API errors (network, auth, rate limit, etc.)
+            raise ValueError(f"Claude API call failed: {type(e).__name__}: {e}")
 
         # Parse tool_use blocks from response
         proposals = self._parse_tool_use_blocks(response)
@@ -110,10 +117,18 @@ class LLMProposer:
                 },
             }
 
-            # Add parameters
+            # Add parameters with semantic types
             for param in tool_schema.parameters:
+                # Infer type from parameter name (semantic mapping)
+                if "amount" in param.name.lower():
+                    param_type = "number"
+                elif "limit" in param.name.lower():
+                    param_type = "integer"
+                else:
+                    param_type = "string"
+
                 tool_def["input_schema"]["properties"][param.name] = {
-                    "type": "string",
+                    "type": param_type,
                     "description": f"Parameter: {param.name}",
                 }
                 if param.required:
