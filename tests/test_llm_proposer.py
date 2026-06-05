@@ -266,3 +266,76 @@ class TestLLMProposerSecurityBoundaries:
 
                 # The injection payload should be in the message text
                 assert injection_payload in message_text
+
+
+class TestLLMProposerPydanticSerialization:
+    """Test that proposer handles Pydantic models in observations."""
+
+    def test_proposer_handles_pydantic_models_in_observations(self):
+        """Verify that Pydantic BaseModel instances are converted to dicts."""
+        try:
+            from pydantic import BaseModel
+        except ImportError:
+            pytest.skip("pydantic not installed")
+
+        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
+            proposer = LLMProposer()
+
+            # Create a Pydantic model to simulate AgentDojo observations
+            class Transaction(BaseModel):
+                id: int
+                amount: float
+
+            observations = {
+                "transaction": Transaction(id=1, amount=100.0),
+                "balance": 5000.0,
+            }
+
+            mock_response = MagicMock()
+            mock_response.content = []
+
+            with patch.object(proposer._client.messages, "create") as mock_create:
+                mock_create.return_value = mock_response
+
+                # Should not raise TypeError
+                proposer.propose(observations)
+
+                # Verify the Pydantic model was converted to dict
+                call_args = mock_create.call_args
+                messages = call_args.kwargs["messages"]
+                message_text = messages[0]["content"]
+
+                # The message should contain the serialized data
+                assert "balance" in message_text
+                assert "5000" in message_text
+
+    def test_make_json_serializable_handles_nested_pydantic(self):
+        """Verify _make_json_serializable recursively handles nested Pydantic models."""
+        try:
+            from pydantic import BaseModel
+        except ImportError:
+            pytest.skip("pydantic not installed")
+
+        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
+            proposer = LLMProposer()
+
+            class Account(BaseModel):
+                id: int
+
+            class Transaction(BaseModel):
+                account: Account
+                amount: float
+
+            observations = {
+                "transaction": Transaction(account=Account(id=1), amount=100.0),
+                "values": [Transaction(account=Account(id=2), amount=200.0)],
+            }
+
+            # Should recursively convert nested Pydantic models
+            result = proposer._make_json_serializable(observations)
+
+            # Result should be pure dicts
+            assert isinstance(result, dict)
+            assert isinstance(result["transaction"], dict)
+            assert isinstance(result["transaction"]["account"], dict)
+            assert isinstance(result["values"][0], dict)

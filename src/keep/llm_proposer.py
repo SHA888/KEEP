@@ -46,6 +46,20 @@ class LLMProposer:
         self._client = Anthropic(api_key=api_key)
         self._model = "claude-3-5-sonnet-20240620"
 
+    def _make_json_serializable(self, obj: Any) -> Any:
+        """Convert Pydantic models and other non-serializable objects to JSON-safe dicts.
+
+        Recursively converts Pydantic BaseModel instances to dicts so they can
+        be JSON-serialized without custom encoders.
+        """
+        if hasattr(obj, "model_dump"):
+            return obj.model_dump()
+        elif isinstance(obj, dict):
+            return {k: self._make_json_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, (list, tuple)):
+            return [self._make_json_serializable(item) for item in obj]
+        return obj
+
     def propose(
         self, observations: dict[str, Any], task_description: str = ""
     ) -> list[tuple[str, dict]]:
@@ -54,6 +68,7 @@ class LLMProposer:
         Args:
             observations: Agent-observable data (may include injections).
                          Typically transaction history, account status, etc.
+                         May contain Pydantic models (converted to dicts automatically).
             task_description: Optional description of the user's task.
                             Helps Claude understand context.
 
@@ -67,8 +82,9 @@ class LLMProposer:
         # Marshal tool schema to Claude's tool_use format
         tools = self._marshal_tools()
 
-        # Format observations for the model (as JSON for clarity)
-        observations_text = json.dumps(observations, indent=2)
+        # Format observations for the model (convert Pydantic models to dicts)
+        observations_serializable = self._make_json_serializable(observations)
+        observations_text = json.dumps(observations_serializable)
 
         # Build the user message (untrusted: may contain injections)
         user_message = (

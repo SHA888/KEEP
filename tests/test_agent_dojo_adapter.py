@@ -7,6 +7,7 @@ and that the LLM sees observations including injected payloads.
 import os
 from unittest.mock import MagicMock, patch
 
+import pytest
 
 from keep.agent_dojo_adapter import AgentDojoAdapter
 from keep.llm_proposer import LLMProposer
@@ -35,6 +36,40 @@ class TestAgentDojoAdapterInitialization:
             adapter = AgentDojoAdapter(proposer, observations, task)
 
             assert adapter._task_description == task
+
+    def test_adapter_raises_on_invalid_proposer(self):
+        """Verify adapter validates that llm_proposer has propose() method."""
+        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
+            invalid_proposer = {"not": "a proposer"}
+            observations = {}
+
+            with pytest.raises(TypeError, match="must have a callable propose"):
+                AgentDojoAdapter(invalid_proposer, observations)
+
+    def test_adapter_raises_on_invalid_task_description_type(self):
+        """Verify adapter validates task_description is a string."""
+        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
+            proposer = LLMProposer()
+            observations = {}
+
+            with pytest.raises(TypeError, match="task_description must be str"):
+                AgentDojoAdapter(proposer, observations, task_description=123)
+
+    def test_adapter_deep_copies_observations(self):
+        """Verify adapter protects against external observation mutations."""
+        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
+            proposer = LLMProposer()
+            original_observations = {"balance": 5000.0, "transactions": []}
+
+            adapter = AgentDojoAdapter(proposer, original_observations)
+
+            # Mutate original observations after adapter creation
+            original_observations["balance"] = 0
+            original_observations["transactions"].append({"id": 1})
+
+            # Adapter's observations should be unchanged (deep copied)
+            assert adapter._observations["balance"] == 5000.0
+            assert len(adapter._observations["transactions"]) == 0
 
 
 class TestAgentDojoAdapterPropose:
@@ -105,6 +140,7 @@ class TestAgentDojoAdapterPropose:
                 # Verify the injection payload was passed to Claude
                 call_args = mock_create.call_args
                 messages = call_args.kwargs["messages"]
+                assert len(messages) > 0, "Expected messages in API call"
                 message_content = messages[0]["content"]
 
                 # The injection payload should be in the message
@@ -184,6 +220,10 @@ class TestAgentDojoAdapterWithRunner:
                 tool, args = proposals[0]
                 assert tool == "list_transactions"
                 assert args == {"limit": 10}
+
+
+class TestAdapterWithRunnerBaseIntegration:
+    """Integration tests combining adapter, runner, and base authorization."""
 
     def test_adapter_with_runner_integration(self):
         """Full integration: adapter -> runner -> base -> execute.
