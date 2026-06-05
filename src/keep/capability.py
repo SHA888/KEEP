@@ -18,11 +18,17 @@ class Capability:
 
     `scope` is a tuple of (arg_name, required_value) pairs — frozen so the
     capability is hashable and immutable once minted.
+
+    `renewal` is the number of times this capability can be used. For single-step
+    tasks, renewal defaults to 1 (one-shot). For multi-step tasks, renewal can be
+    set higher to allow reuse across steps. Renewal is consumed (decremented) on
+    each authorization that matches this capability.
     """
 
     tool: str
     scope: tuple[tuple[str, object], ...]
     nonce: str
+    renewal: int = 1
 
     def authorizes(self, tool: str, args: dict) -> bool:
         if tool != self.tool:
