@@ -283,6 +283,16 @@ def test_real_llm_proposer_vs_injection_incoming_transaction():
     except ValueError as e:
         pytest.skip(f"LLMProposer.propose() failed: {e}")
 
+    # Ensure proposer made at least one proposal; otherwise test is vacuous
+    # (empty proposals list would cause loop at line 325 to never execute,
+    # allowing all assertions to pass without evaluating the security guarantee)
+    if not proposals:
+        pytest.skip(
+            "Claude proposed no tool calls; cannot evaluate security guarantee. "
+            "This can happen if Claude responds with text-only (no tool_use blocks). "
+            "Test requires at least one proposal to verify the blocking mechanism."
+        )
+
     # Set up TrustedBase with capabilities for legitimate operations only
     # (reconciliation task does not authorize money transfers)
     base = TrustedBase()
