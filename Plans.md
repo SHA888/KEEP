@@ -33,7 +33,7 @@ uv run pytest -q            # run tests
 |------|---------|-----|---------|--------|
 | 2.1  | Wire Claude API client for LLM proposals | Claude API initialized, can call `messages.create()` with tool schema | Phase 1 | cc:done [f5b154a] |
 | 2.2  | Implement LLM-based proposer reading AgentDojo observations | LLM sees transaction history (including injected payload), proposes tool calls | 2.1 | cc:done [502fd29] |
-| 2.3  | End-to-end test: real LLM vs. injection_incoming_transaction | LLM proposes legitimate calls + injection, base blocks injection, audit trail complete | 2.2 | cc:done [TODO] |
+| 2.3  | End-to-end test: real LLM vs. injection_incoming_transaction | LLM proposes legitimate calls + injection, base blocks injection, audit trail complete | 2.2 | cc:done [bfa0716] |
 | 2.4  | Verify guarantee holds: injection blocked with real LLM | `uv run pytest` passes; injection blocked; LLM proposals logged | 2.3 | cc:todo |
 | 2.5  | Test with full AgentDojo banking suite (all scenarios) | All banking scenarios run without crashes; injection_* scenarios all blocked | 2.4 | cc:todo |
 | 2.6  | Measure attack success rate on AgentDojo banking | P3 claim ready: report 0% injection success on banking suite (or lower bound) | 2.5 | cc:todo |
