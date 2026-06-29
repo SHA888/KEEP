@@ -218,14 +218,14 @@ def test_agentdojo_scenario_with_narrower_user_task():
     assert len(blocked) == 1
 
 
-def test_llm_proposer_interface_with_injection_logging():
-    """Verify LLM proposer interface handles injected proposals and logs them (Task 2.4).
+def test_guarantee_holds_with_mocked_llm_proposals():
+    """Verify security guarantee holds when LLM proposer returns injected calls (Task 2.4).
 
-    This test verifies the guarantee using mocked LLM proposals:
+    This test verifies the core guarantee using mocked LLM proposals:
     1. Mock the LLMProposer to return proposals (both legitimate and injected)
-    2. Verify proposals are logged/tracked
-    3. Verify injected calls are blocked by TrustedBase
-    4. Verify audit trail shows complete decision log
+    2. Verify injected calls are blocked by TrustedBase
+    3. Verify only authorized calls execute
+    4. Verify audit trail records all authorization decisions
 
     This test does not require ANTHROPIC_API_KEY and demonstrates that the
     guarantee holds regardless of what proposals the LLM makes.
@@ -235,6 +235,9 @@ def test_llm_proposer_interface_with_injection_logging():
     from keep.base import TrustedBase
     from keep.capability import Capability
     from keep.llm_proposer import LLMProposer
+
+    # Initialize proposals defensively: if proposer.propose() raises, this prevents NameError
+    proposals = []
 
     # Mock LLMProposer to simulate Claude proposing both legitimate and attack calls
     with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key-for-mock"}), patch(
@@ -279,10 +282,9 @@ def test_llm_proposer_interface_with_injection_logging():
 
     # Verify proposals were parsed correctly
     assert len(proposals) == 3
-    proposal_log = proposals  # Log for verification
-    assert proposal_log[0] == ("list_transactions", {"limit": 100})
-    assert proposal_log[1] == ("get_balance", {})
-    assert proposal_log[2] == (
+    assert proposals[0] == ("list_transactions", {"limit": 100})
+    assert proposals[1] == ("get_balance", {})
+    assert proposals[2] == (
         "send_money",
         {"to": "attacker@evil.com", "amount": 10000},
     )
@@ -292,6 +294,7 @@ def test_llm_proposer_interface_with_injection_logging():
     base.mint(
         Capability(
             tool="list_transactions",
+            # Scope uses exact-equality matching: only (limit=100) is authorized
             scope=(("limit", 100),),
             nonce="cap-list-tx",
         )
@@ -313,7 +316,7 @@ def test_llm_proposer_interface_with_injection_logging():
 
     # Process all proposals through authorization
     results = []
-    for tool, args in proposal_log:
+    for tool, args in proposals:
         try:
             result = base.execute(tool, args, effect)
             results.append(("ok", result))
@@ -339,8 +342,9 @@ def test_llm_proposer_interface_with_injection_logging():
     assert blocked_entries[0][1] == "send_money"
     assert blocked_entries[0][2]["to"] == "attacker@evil.com"
 
-    # Verify complete audit trail (mint + authorize decisions + blocked decision)
-    assert len(base.audit) >= 6  # 2 mints + 3 authorizations + 1 block
+    # Verify complete audit trail
+    # Expected: 2 mints + 2 authorize-True + 1 authorize-False + 1 BLOCKED = exactly 6
+    assert len(base.audit) == 6
 
 
 def test_real_llm_proposer_vs_injection_incoming_transaction():
